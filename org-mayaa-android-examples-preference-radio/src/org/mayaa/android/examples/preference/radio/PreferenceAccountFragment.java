@@ -20,7 +20,6 @@ public class PreferenceAccountFragment extends PreferenceFragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         mRootPreferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
         setPreferenceScreen(mRootPreferenceScreen);
     }
@@ -28,7 +27,7 @@ public class PreferenceAccountFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        mSelectAccount = getSelectAccount(getActivity());
+        loadSelectAccount();
         removeAllPreferenceScreen();
         buildAccountsPreferences();
     }
@@ -52,7 +51,13 @@ public class PreferenceAccountFragment extends PreferenceFragment {
         final boolean isChecked = TextUtils.equals(mSelectAccount, account);
         p.setChecked(isChecked);
 
+        p.setOnPreferenceChangeListener(mOnPreferenceChangeListener);
+
         return p;
+    }
+
+    private void loadSelectAccount() {
+        mSelectAccount = getSelectAccount(getActivity());
     }
 
     private String getSelectAccount(final Context context) {
@@ -66,4 +71,26 @@ public class PreferenceAccountFragment extends PreferenceFragment {
         editor.putString(context.getString(R.string.pref_account_key), value);
         editor.commit();
     }
+
+    private final Preference.OnPreferenceChangeListener mOnPreferenceChangeListener =
+        new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                // true -> false ignore
+                if (Boolean.FALSE.equals(newValue)) {
+                    return false;
+                }
+
+                // save account
+                final String account = String.valueOf(preference.getTitle());
+                setSelectAccount(getActivity(), account);
+
+                // refresh accounts preference screen
+                loadSelectAccount();
+                removeAllPreferenceScreen();
+                buildAccountsPreferences();
+
+                return true;
+            }
+        };
 }
