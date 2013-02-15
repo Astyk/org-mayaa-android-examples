@@ -44,7 +44,7 @@ public class PreferenceAccountFragment extends PreferenceFragment {
     }
 
     private Preference buildAccountPreferences(final String account) {
-        final CheckBoxPreference p = new CheckBoxPreference(getActivity());
+        final CheckBoxPreference p = new CheckBoxPreference(getActivity(), null, R.attr.accountCheckBoxPreferenceStyle);
 
         p.setTitle(account);
 
